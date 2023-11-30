@@ -1,1 +1,2 @@
-# EZ-Paper_Downloader
+# EZ-PaperDownloader
+Download paper easily
