@@ -24,6 +24,7 @@ def open_website():
 # 2. Input the paper's title
 def input_title(driver, title):
     # driver.find_element_by_id is not avaliable now
+    #time.sleep(30)
     input = driver.find_element("id", "request")
     input.send_keys(title)
 
@@ -35,14 +36,19 @@ def click_search(driver):
 
     search = driver.find_element("xpath", "//button[@type='submit']")
     search.click()
-    #time.sleep(2)
+    # time.sleep(2)
 
 
 # 4. Click the download button and save to the desktop
 def click_download(driver):
-    download = driver.find_element("xpath", "//button[@onclick]")
-    download.click()
-    time.sleep(3)
+    try:
+        download = driver.find_element("xpath", "//button[@onclick]")
+        download.click()
+        time.sleep(3)
+        print("Download successfully, please check your \"download!\" folder!")
+    # if the paper is not exist
+    except:
+        print("The paper is not exist!")
 
 # 5. Close the website
 def close_website(driver):
@@ -51,12 +57,13 @@ def close_website(driver):
 
 # 7. Main function
 def main():
-    website = input("Please input doi / website of the paper you want to download: ")
-    driver = open_website()
-    input_title(driver, website)
-    click_search(driver)
-    click_download(driver)
-    close_website(driver)
+    while True:
+        website = input("Please input doi / website of the paper you want to download: ")
+        driver = open_website()
+        input_title(driver, website)
+        click_search(driver)
+        click_download(driver)
+        close_website(driver)
 
 
 main()
