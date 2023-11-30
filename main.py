@@ -15,7 +15,8 @@ def initialization():
     layout = [[sg.Text("Status"), sg.Text("DOI Not Provided", key="status", text_color="red")],
               [sg.Text("Please input doi / website of the paper you want to download: ")],
               [sg.Input(key="website")],
-              [sg.Button("OK"), sg.Button("Cancel"), sg.Text("              Powered by: HKU Lin & HKU Fan", text_color="green")]]
+              [sg.Button("OK"), sg.Button("Close"), sg.Text("              ", font=("Times New Roman", 35)),
+               sg.Text("Powered by: HKU Lin & HKU Fan", text_color="green", font=("Times New Roman", 10))]]
 
     # create the window
     window = sg.Window("Download Paper", layout)
@@ -25,7 +26,7 @@ def initialization():
 def window_operation(window):
     while True:
         event, values = window.read()
-        if event in (None, "Cancel"):
+        if event in (None, "Close"):
             # end the program
             exit()
         if event == "OK":
@@ -46,20 +47,26 @@ def window_operation(window):
 
 
 # 1. Open the website
-def open_website():
+def open_website(window):
     op = webdriver.ChromeOptions()
     # op.add_argument('headless')  # not showing up the browser
 
     op.add_argument('--headless')
-    op.add_experimental_option('excludeSwitches',['enable-automation'])
+    op.add_experimental_option('excludeSwitches', ['enable-automation'])
     # set the path to download
     current_directory = os.path.dirname(os.path.abspath(__file__))
-    prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': current_directory + "\\download!"}
+    prefs = {'profile.default_content_settings.popups': 0,
+             'download.default_directory': current_directory + "\\download!"}
     op.add_experimental_option('prefs', prefs)
 
     url = 'https://sci-hub.se/'
     driver = webdriver.Chrome(options=op)
-    driver.get(url)
+    try:
+        driver.get(url)
+    except:
+        sg.Popup("Poor Connection!")
+        window.close()
+        return main()
     return driver
 
 
@@ -73,6 +80,7 @@ def input_title(driver, title):
         # print("website caught me as a bot!")
         sg.Popup("OH,no! You are caught as a bot! Please try again later")
         exit()
+
 
 # 3. Click the search button
 def click_search(driver):
@@ -99,8 +107,9 @@ def click_download(driver):
 
 
 # 5. Close the website
-def close_website(driver):
+def close_website(driver, window):
     driver.close()
+    window.close()
 
 
 # 7. Main function
@@ -109,11 +118,11 @@ def main():
         window = initialization()
         values = window_operation(window)
         # website = input("Please input doi / website of the paper you want to download: ")
-        driver = open_website()
+        driver = open_website(window)
         input_title(driver, values["website"])
         click_search(driver)
         click_download(driver)
-        close_website(driver)
+        close_website(driver, window)
 
 
 main()
