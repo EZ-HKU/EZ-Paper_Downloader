@@ -2,6 +2,7 @@
 import time
 from selenium import webdriver
 import PySimpleGUI as sg
+import os
 
 
 def initialization():
@@ -14,7 +15,7 @@ def initialization():
     layout = [[sg.Text("Status"), sg.Text("DOI Not Provided", key="status", text_color="red")],
               [sg.Text("Please input doi / website of the paper you want to download: ")],
               [sg.Input(key="website")],
-              [sg.Button("OK"), sg.Button("Cancel")]]
+              [sg.Button("OK"), sg.Button("Cancel"), sg.Text("              Powered by: HKU Lin & HKU Fan", text_color="green")]]
 
     # create the window
     window = sg.Window("Download Paper", layout)
@@ -47,10 +48,13 @@ def window_operation(window):
 # 1. Open the website
 def open_website():
     op = webdriver.ChromeOptions()
-    op.add_argument('headless')  # not showing up the browser
+    # op.add_argument('headless')  # not showing up the browser
 
+    op.add_argument('--headless')
+    op.add_experimental_option('excludeSwitches',['enable-automation'])
     # set the path to download
-    prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': "C:\\Users\\74483\\Downloads"}
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': current_directory + "\\download!"}
     op.add_experimental_option('prefs', prefs)
 
     url = 'https://sci-hub.se/'
@@ -62,10 +66,13 @@ def open_website():
 # 2. Input the paper's title
 def input_title(driver, title):
     # driver.find_element_by_id is not avaliable now
-    # time.sleep(30)
-    in_put = driver.find_element("id", "request")
-    in_put.send_keys(title)
-
+    try:
+        in_put = driver.find_element("id", "request")
+        in_put.send_keys(title)
+    except:
+        # print("website caught me as a bot!")
+        sg.Popup("OH,no! You are caught as a bot! Please try again later")
+        exit()
 
 # 3. Click the search button
 def click_search(driver):
