@@ -43,12 +43,18 @@ def open_website(window):
     os.chdir(path)
     op = webdriver.ChromeOptions()
 
-    op.add_argument('--headless')
-    op.add_experimental_option('excludeSwitches', ['enable-automation'])
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    prefs = {'--profile.default_content_settings.popups': 0,
-             '--download.default_directory': current_directory}
+    download_location = os.path.abspath(path)
+
+    prefs = {'download.default_directory': download_location,
+             'download.prompt_for_download': False,
+             'download.directory_upgrade': True,
+             'safebrowsing.enabled': True,
+             'safebrowsing.disable_download_protection': True}
+
     op.add_experimental_option('prefs', prefs)
+
+    op.add_argument('--headless')
+    op.add_argument('--disable-gpu')
 
     url = 'https://sci-hub.se/'
     driver = webdriver.Chrome(options=op)
