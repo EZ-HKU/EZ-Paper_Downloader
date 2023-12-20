@@ -4,6 +4,9 @@ Download paper easily
 Not Ready, some bugs are still waiting to be solved...
 
 **Problem Facing:** 
-- In python, the code runs well.
-- After Packaging, the download file can be find nowhere!!!
-- Can only run in HK, the website will treat you as a robot in Mainland
+- In HK, user will not be detected as a robot
+- In Mainland, user will be detected as a robot
+
+**Solution**
+- In HK, user can use healess mode (v4.2.0_HK)
+- In Mainland, user should use the head mode (v4.2.0)
