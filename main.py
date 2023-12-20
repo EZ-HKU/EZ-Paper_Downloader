@@ -3,7 +3,6 @@ from selenium import webdriver
 import PySimpleGUI as sg
 import os
 
-
 def initialization():
     sg.SetOptions(text_justification="center", font=("Noto Sans", 18))
     sg.theme("Dark")
@@ -17,7 +16,7 @@ def initialization():
                sg.T("GitHub", text_color="yellow",
                     enable_events=True, key="about", tooltip="Click to visit my GitHub page!")]]
 
-    window = sg.Window("EZ-PaperDownloader v4.0.0", layout)
+    window = sg.Window("EZ-PaperDownloader v4.2.0", layout)
     return window
 
 
@@ -44,7 +43,7 @@ def open_website(window):
     op = webdriver.ChromeOptions()
 
     download_location = os.path.abspath(path)
-
+ 
     prefs = {'download.default_directory': download_location,
              'download.prompt_for_download': False,
              'download.directory_upgrade': True,
@@ -53,7 +52,7 @@ def open_website(window):
 
     op.add_experimental_option('prefs', prefs)
 
-    op.add_argument('--headless')
+    # op.add_argument('--headless')
     op.add_argument('--disable-gpu')
 
     url = 'https://sci-hub.se/'
@@ -68,12 +67,17 @@ def open_website(window):
 
 
 def input_title(driver, title):
-    try:
-        in_put = driver.find_element("id", "request")
-        in_put.send_keys(title)
-    except:
-        sg.Popup("OH,no! You are caught as a bot! Please try again later")
-        exit()
+    while (True):
+        time.sleep(1)
+        try:
+            in_put = driver.find_element("id", "request")
+            in_put.send_keys(title)
+            break
+        except:
+            if sg.PopupYesNo("Please Finish the Captcha!") == "No":
+                driver.close()
+                exit()
+
 
 
 def click_search(driver):
@@ -81,12 +85,26 @@ def click_search(driver):
     search.click()
 
 
-def click_download(driver):
+def click_download(driver, path):
     try:
         download = driver.find_element("xpath", "//button[@onclick]")
         download.click()
-        time.sleep(3)
-        sg.Popup("Download successfully, please check your \"download!\" folder!")
+
+        # check if the file exists, "I only know if the file's suffix is .tmp, means not exist"
+        while True:
+            count = 0
+            files = os.listdir(path)
+            for file in files:
+                if file.endswith(".tmp") or file.endswith(".crdownload"):
+                    count += 1
+
+            if count == 0:
+                sg.Popup(f"Download successfully, please check your {path} folder!")
+                break
+
+            elif count != 1:
+                time.sleep(1)
+
     except:
         sg.Popup("The paper does not exist!")
 
@@ -103,7 +121,7 @@ def main():
         driver = open_website(window)
         input_title(driver, values["website"])
         click_search(driver)
-        click_download(driver)
+        click_download(driver, values["path"])
         close_website(driver, window)
 
 
